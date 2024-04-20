@@ -3,11 +3,30 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
 
 
 # Create your views here.
 def home(request):
   return render(request, 'authentication/index.html')
+
+@login_required
+def settings(request):
+    fname = request.user.first_name
+    lname = request.user.last_name
+    return render(request, 'authentication/settings.html', {'fname': fname,'lname': lname})
+
+@login_required
+def history(request):
+    fname = request.user.first_name
+    lname = request.user.last_name
+    return render(request, 'authentication/history.html', {'fname': fname, 'lname': lname})
+
+def community(request):
+    fname = request.user.first_name
+    lname = request.user.last_name
+    return render(request, 'authentication/community.html', {'fname': fname, 'lname': lname})
 
 def signup(request):
   if request.method == "POST":
