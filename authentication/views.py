@@ -5,11 +5,35 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+from authentication.models import YourModel
+
 
 
 # Create your views here.
+def chart_view(request):
+    data = YourModel.objects.all().values('category', 'value')
+    labels = [item['category'] for item in data]
+    values = [item['value'] for item in data]
+    return render(request, 'chart_template.html', {'labels': labels, 'values': values})
+
+def verify(request):
+  return render(request, 'authentication/verify.html')
+
+def homepage(request):
+  # return render(request, 'authentication/homepage.html')
+  if request.method == 'POST':
+    textarea_value = request.POST.get('textarea_name', '')  # Get textarea value from POST data
+    return render(request, 'authentication/verify.html', {'textarea_value': textarea_value})
+  else:
+    return render(request, 'authentication/homepage.html')
+
 def home(request):
-  return render(request, 'authentication/index.html')
+  # return render(request, 'authentication/index.html')
+  if request.method == 'POST':
+    textarea_value = request.POST.get('textarea_name', '')  # Get textarea value from POST data
+    return render(request, 'authentication/verify.html', {'textarea_value': textarea_value})
+  else:
+    return render(request, 'authentication/index.html')
 
 @login_required
 def settings(request):
@@ -81,7 +105,7 @@ def signin(request):
     if user is not None:
       login(request, user)
       fname = user.first_name
-      return render(request, "authentication/index.html", {'fname':fname})
+      return render(request, "authentication/homepage.html", {'fname':fname})
 
     else:
       messages.error(request, "Bad Credentials")

@@ -10,4 +10,6 @@ urlpatterns = [
   path('history', views.history, name="history"),
   path('settings', views.settings, name="settings"),
   path('community', views.community, name="community"),
+  path('homepage', views.homepage, name="homepage"),
+  path('verify', views.verify, name="verify"),
 ]

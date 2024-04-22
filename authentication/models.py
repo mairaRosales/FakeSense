@@ -1,3 +1,9 @@
 from django.db import models
 
-# Create your models here.
+class YourModel(models.Model):
+    category = models.CharField(max_length=100)
+    value = models.IntegerField()
+
+    class Meta:
+        app_label = 'authentication'
+
