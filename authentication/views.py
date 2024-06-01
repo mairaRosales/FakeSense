@@ -6,7 +6,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from authentication.models import YourModel
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
+import torch
+
+tokenizer = AutoTokenizer.from_pretrained("hamzab/roberta-fake-news-classification")
+model = AutoModelForSequenceClassification.from_pretrained("hamzab/roberta-fake-news-classification")
 
 
 # Create your views here.
@@ -16,8 +21,7 @@ def chart_view(request):
     values = [item['value'] for item in data]
     return render(request, 'chart_template.html', {'labels': labels, 'values': values})
 
-def verify(request):
-  return render(request, 'authentication/verify.html')
+
 
 def homepage(request):
   # return render(request, 'authentication/homepage.html')
@@ -27,13 +31,22 @@ def homepage(request):
   else:
     return render(request, 'authentication/homepage.html')
 
+# def home(request):
+#   # return render(request, 'authentication/index.html')
+#   if request.method == 'POST':
+#     textarea_value = request.POST.get('textarea_name', '')  # Get textarea value from POST data
+#     return render(request, 'authentication/verify.html', {'textarea_value': textarea_value})
+#   else:
+#     return render(request, 'authentication/index.html')
+
 def home(request):
-  # return render(request, 'authentication/index.html')
-  if request.method == 'POST':
-    textarea_value = request.POST.get('textarea_name', '')  # Get textarea value from POST data
-    return render(request, 'authentication/verify.html', {'textarea_value': textarea_value})
-  else:
-    return render(request, 'authentication/index.html')
+    if request.method == 'POST':
+        textarea_value = request.POST.get('textarea_value')
+        prediction = predict_fake(title="Title", content=textarea_value)
+        return render(request, 'authentication/verify.html', {'textarea_value': textarea_value, 'prediction': prediction})
+    else:
+      return render(request, 'authentication/index.html')
+
 
 @login_required
 def settings(request):
@@ -117,3 +130,26 @@ def signout(request):
   logout(request)
   messages.success(request,"Log Out Successfully")
   return redirect('home')
+
+
+def predict_fake(title, text):
+    input_str = "<title>" + title + "<content>" +  text + "<end>"
+    input_ids = tokenizer.encode_plus(input_str, max_length=512, padding="max_length", truncation=True, return_tensors="pt")
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model.to(device)
+    with torch.no_grad():
+        output = model(input_ids["input_ids"].to(device), attention_mask=input_ids["attention_mask"].to(device))
+    return dict(zip(["Fake", "Real"], [x.item() for x in list(torch.nn.Softmax(dim=1)(output.logits)[0])]))
+
+def verify(request):
+    if request.method == 'POST':
+        headline = request.POST.get('headline', '')
+        content = request.POST.get('content', '')
+        result = predict_fake(headline, content)
+        total = sum(result.values())
+        fake_percentage = (result['Fake'] / total) * 100
+        real_percentage = (result['Real'] / total) * 100
+
+        return render(request, 'authentication/verify.html', {'headline': headline, 'content': content, 'result': result, 'fake_percentage': fake_percentage, 'real_percentage': real_percentage})
+    else:
+      return render(request, 'authentication/verify.html')

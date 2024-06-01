@@ -56,36 +56,27 @@
           <a href="#div3" class="cta"><button>Learn More</button></a>
         </div>
       </div>
-      <form id="textareaForm" class="right_pane" method="POST" action="">
+      <form id="textareaForm" class="right_pane" method="POST" action="{% url 'verify' %}">
         {% csrf_token %}
         <div class="right_pane">
-        <div class="textarea_bg">
-          <textarea
-            id="hometextarea_id"
-            name="textarea_name"
-            rows="20"
-            cols="0"
-            placeholder="Paste URL link/article here..."
-            oninput="updateCharacterCount()"
-          ></textarea>
-          <div class="textarea_characters">
-            <p id="characterCount">0 characters</p>
-          </div>
+            <div class="textarea_bg">
+                <textarea id="headline_id" name="headline" rows="1" placeholder="Enter headline here..." required></textarea>
+                <textarea id="hometextarea_id" name="content" rows="20" cols="0" placeholder="Paste article content here..." oninput="updateCharacterCount()" required></textarea>
+                <div class="textarea_characters">
+                    <p id="characterCount">0 characters</p>
+                </div>
+            </div>
+            <div class="radio-btn_group">
+                <div>
+                    <input type="radio" id="html" name="fav_language" value="HTML" checked />
+                    <label for="html">Article</label><br />
+                    <input type="radio" id="css" name="fav_language" value="CSS" />
+                    <label for="css">Account</label><br />
+                </div>
+                <button type="submit" id="verify_btn">Verify</button>
+            </div>
         </div>
-
-        <div class="radio-btn_group">
-          <div>
-            <input type="radio" id="html" name="fav_language" value="HTML" checked/>
-            <label for="html">Article</label><br />
-
-            <input type="radio" id="css" name="fav_language" value="CSS" />
-            <label for="css">Account</label><br />
-          </div>
-          
-            <button type="submit"  id="verify_btn">Verify</button>
-        </div>
-        </div>
-      </form>
+    </form>
     </article>
   </div>
   <div id="div2"></div>
